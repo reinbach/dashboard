@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" type="text/css" media="screen" />
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.7.2.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/socket.io.js') }}"></script>
+    <style type="text/css" media="screen">
+      body { padding-top: 60px; }
+    </style>
+  </head>
+  <body>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+	<div class="container">
+	  <a class="brand" href="/">Dashboard</a>
+	  <ul class="nav pull-right">
+            <li><a href="#"><span id="conn_status" class="label">Not Connected</span></a></li>
+	  </ul>
+	</div>
+      </div>
+    </div>
+    <div class="container">
+      {% block content %}{% endblock content %}
+    </div>
+  </body>
+</html>
