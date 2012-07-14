@@ -7,6 +7,8 @@ from socketio.server import SocketIOServer
 
 from werkzeug.wsgi import SharedDataMiddleware
 
+from consumer import consumer_service
+
 monkey.patch_all()
 
 app = Flask(__name__)
@@ -27,7 +29,8 @@ def main():
     )
 
     gevent.joinall([
-        gevent.spawn(socket_server.serve_forever)
+        gevent.spawn(socket_server.serve_forever),
+        gevent.spawn(consumer_service)
     ])
 
 if __name__ == "__main__":
