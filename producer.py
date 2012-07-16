@@ -31,7 +31,7 @@ def random_message():
         ("error", "504 Request"),
         ("warning", "Slow reponse"),
     ]
-    return random.sample(data, 1)
+    return random.sample(data, 1)[0]
 
 def random_data(data_size=4):
     """Generate random data"""
@@ -47,7 +47,7 @@ def data_producer():
     data_socket.connect(DASHBOARD_DATA_URI)
 
     while True:
-        data_msg = json.dumps(random_data())
+        data_msg = json.dumps({'source': 'data', 'data': random_data()})
         print "sending: ", data_msg
         data_socket.send(data_msg)
         gevent.sleep(random_time_delay())
@@ -61,7 +61,7 @@ def message_producer():
     message_socket.connect(DASHBOARD_DATA_URI)
 
     while True:
-        msg = json.dumps(random_message())
+        msg = json.dumps({'source': 'message', 'data': random_message()})
         print "sending: ", msg
         message_socket.send(msg)
         gevent.sleep(random_time_delay(False))
