@@ -6,6 +6,7 @@ requires = [
     'gevent-socketio==0.3.5-beta',
     'Flask==0.8',
     'pyzmq==2.2.0',
+    'mongokit==0.8',
 ]
 
 setup(
