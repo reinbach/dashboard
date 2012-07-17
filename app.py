@@ -18,7 +18,11 @@ data_set_handler = DataSetHandler()
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    # get list of data meta types
+    context = dict(
+        meta_types=data_set_handler.get_data_set_meta()
+    )
+    return render_template("index.html", context=context)
 
 def main():
     http_app = SharedDataMiddleware(app, {

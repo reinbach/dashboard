@@ -1,4 +1,14 @@
 {% extends "layout.html" %}
 
 {% block content %}
+    <section id="dashboard">
+      <div class="span3">
+	<h3>Feeds</h3>
+	<ul>
+	  {% for meta in context.meta_types.values() %}
+	    <li>{{ meta.label }}</li>
+	  {% endfor %}
+	</ul>
+      </header>
+    </section>
 {% endblock %}

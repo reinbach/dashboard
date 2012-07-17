@@ -60,6 +60,16 @@ class DataSetHandler(object):
         self.data_set_meta = {}
         self.db = db
 
+    def get_data_set_meta(self):
+        for meta in self.db.data_set_meta.find():
+            meta_data_key = self.set_meta_data_key(
+                source=meta.get('source'),
+                field_count=meta.get('field_count'),
+                field_types=meta.get('field_types')
+            )
+            self.data_set_meta[meta_data_key] = meta
+        return self.data_set_meta
+
     def add(self, data):
         """When adding determine whether there is matching meta data by;
         - source
@@ -86,13 +96,16 @@ class DataSetHandler(object):
 
         return raw_data
 
+    def set_meta_data_key(self, source, field_count, field_types):
+        return json.dumps((source, field_count, field_types))
+
     def get_or_create_meta(self, data):
         """Check for matching meta data record otherwise create one"""
         source = self.get_source(data)
         field_count = self.get_field_count(data)
         field_types = self.get_field_types(data)
 
-        meta_data_key = json.dumps((source, field_count, field_types))
+        meta_data_key = self.set_meta_data_key(source, field_count, field_types)
 
         if meta_data_key not in self.data_set_meta:
             # get meta that matches source, field_count and field_types
