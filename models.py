@@ -25,7 +25,7 @@ class DataSetMeta(Document):
         'label': unicode,
         'field_count': int,
         'field_types': list,
-        'collection': basestring
+        'collection': basestring,
     }
 
     def __init__(self, source, field_count, field_types, collection, label=None):
@@ -53,7 +53,6 @@ class DataSet(object):
     """The raw data stored in collections determined by meta data"""
     pass
 
-
 class DataSetHandler(object):
     """Wrapper to data set information"""
 
@@ -70,8 +69,9 @@ class DataSetHandler(object):
         If match is found then store in relevant collection, otherwise
         create new meta data record and collection
         """
-        meta_data = self.get_or_create_meta(json.loads(data))
-        #TODO add data set record with meta data
+        data = json.loads(data)
+        meta_data = self.get_or_create_meta(data)
+        self.db[meta_data.get('collection')].insert(self.get_raw_data(data))
 
     def get_raw_data(self, data):
         """Remove irrelevant fields and leave just the actual data"""
@@ -96,7 +96,7 @@ class DataSetHandler(object):
 
         if meta_data_key not in self.data_set_meta:
             # get meta that matches source, field_count and field_types
-            meta_data = self.db.data_set_meta.find({
+            meta_data = self.db.data_set_meta.find_one({
                 'source': source,
                 'field_count': field_count,
                 'field_types': field_types
@@ -104,7 +104,7 @@ class DataSetHandler(object):
             # if not found generate uid for data set collection name
             # and store meta record and add to data set meta list
             if meta_data is None:
-                meta_data_collection = uuid.uuid1()
+                meta_data_collection = u"{0}".format(uuid.uuid1())
                 meta_data = DataSetMeta(
                     source=source,
                     field_count=field_count,
