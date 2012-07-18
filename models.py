@@ -81,7 +81,9 @@ class DataSetHandler(object):
         """
         data = json.loads(data)
         meta_data = self.get_or_create_meta(data)
-        self.db[meta_data.get('collection')].insert(self.get_raw_data(data))
+        new_data = self.get_raw_data(data)
+        self.db[meta_data.get('collection')].insert(new_data)
+        return new_data
 
     def get_raw_data(self, data):
         """Remove irrelevant fields and leave just the actual data"""

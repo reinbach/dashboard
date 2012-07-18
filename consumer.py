@@ -1,13 +1,17 @@
 import gevent
 import zmq
 
-from config import DASHBOARD_DATA_URI
+from config import DASHBOARD_DATA_URI, DASHBOARD_IO_URI
+
 
 def consumer_service(data_set_handler):
     """Accept the data from various clients"""
     context = zmq.Context()
     socket = context.socket(zmq.PULL)
     socket.bind(DASHBOARD_DATA_URI)
+
+    stream_to_io = context.socket(zmq.PUB)
+    stream_to_io.bind(DASHBOARD_IO_URI)
 
     print "Start consumer service...."
 
@@ -19,9 +23,9 @@ def consumer_service(data_set_handler):
 
         if data.get(socket) == zmq.POLLIN:
             msg = socket.recv()
-            data_set_handler.add(msg)
-            #TODO message needs to be pushlished
-            # to users that are connected
+            data = data_set_handler.add(msg)
+            stream_to_io.send(data)
         gevent.sleep(0.1)
 
     socket.close()
+    stream_to_io.close()

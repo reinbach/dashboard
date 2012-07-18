@@ -1,12 +1,14 @@
 import gevent
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from gevent import monkey
+from socketio import socketio_manage
 from socketio.server import SocketIOServer
 from werkzeug.wsgi import SharedDataMiddleware
 
 from consumer import consumer_service
+from dashboardio import DashboardIOApp
 from models import DataSetHandler
 
 monkey.patch_all()
@@ -18,11 +20,16 @@ data_set_handler = DataSetHandler()
 
 @app.route("/")
 def home():
-    # get list of data meta types
-    context = dict(
-        meta_types=data_set_handler.get_data_set_meta()
+    return render_template("index.html")
+
+@app.route('/socket.io/<path:path>')
+def socketio_server(path):
+    socketio_manage(
+        request.environ,
+        {'': DashboardIOApp},
+        request=data_set_handler
     )
-    return render_template("index.html", context=context)
+    return {}
 
 def main():
     http_app = SharedDataMiddleware(app, {
