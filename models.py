@@ -28,20 +28,22 @@ class DataSetMeta(Document):
         'collection': basestring,
     }
 
-    def __init__(self, source, field_count, field_types, collection, label=None):
-        self.source = source
-        self.field_count = field_count
-        self.field_types = field_types
-        self.collection = collection
-        self.label = label
+    def __init__(self, data):
+        self.source = data.get('source')
+        self.field_count = data.get('field_count')
+        self.field_types = data.get('field_types')
+        self.collection = data.get('collection')
+        self.label = data.get('label', None)
         if self.label is None:
             self.label = self.source
+        self._id = u"{0}".format(data.get('_id', None))
 
     def __repr__(self):
         return u"<Meta {0}>".format(self.label)
 
     def to_dict(self):
         return {
+            '_id': self._id,
             'source': self.source,
             'field_count': self.field_count,
             'field_types': self.field_types,
@@ -67,7 +69,7 @@ class DataSetHandler(object):
                 field_count=meta.get('field_count'),
                 field_types=meta.get('field_types')
             )
-            self.data_set_meta[meta_data_key] = meta
+            self.data_set_meta[meta_data_key] = DataSetMeta(meta).to_dict()
         return self.data_set_meta
 
     def add(self, data):
@@ -120,12 +122,12 @@ class DataSetHandler(object):
             # and store meta record and add to data set meta list
             if meta_data is None:
                 meta_data_collection = u"{0}".format(uuid.uuid1())
-                meta_data = DataSetMeta(
+                meta_data = DataSetMeta(dict(
                     source=source,
                     field_count=field_count,
                     field_types=field_types,
                     collection=meta_data_collection
-                ).to_dict()
+                )).to_dict()
                 self.db.data_set_meta.insert(meta_data)
             self.data_set_meta[meta_data_key] = meta_data
 

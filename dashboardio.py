@@ -1,3 +1,4 @@
+import json
 import gevent
 import zmq
 
@@ -20,10 +21,11 @@ class DashboardIOApp(BaseNamespace, BroadcastMixin):
         poller = zmq.Poller()
         poller.register(sock, zmq.POLLIN)
 
-        self.emit("meta_data_types", self.request.get_data_set_meta())
+        for meta_data in self.request.get_data_set_meta().values():
+            self.emit("meta_data_types", json.dumps(meta_data))
 
         while True:
-            action = dict(poller.Poll(1))
+            action = dict(poller.poll(1))
 
             if action:
                 # record the data and send to client
