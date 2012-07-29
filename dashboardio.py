@@ -22,7 +22,10 @@ class DashboardIOApp(BaseNamespace, BroadcastMixin):
         poller.register(sock, zmq.POLLIN)
 
         for meta_data in self.request.get_data_set_meta().values():
-            self.emit("meta_data_types", json.dumps(meta_data))
+            # get initial data for meta data type
+            response = meta_data.to_json_friendly()
+            response['data'] = meta_data.get_data()
+            self.emit("meta_data_types", json.dumps(response))
 
         while True:
             action = dict(poller.poll(1))

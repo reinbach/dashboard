@@ -1,4 +1,5 @@
 import gevent
+import json
 import zmq
 
 from config import DASHBOARD_DATA_URI, DASHBOARD_IO_URI
@@ -24,7 +25,7 @@ def consumer_service(data_set_handler):
         if data.get(socket) == zmq.POLLIN:
             msg = socket.recv()
             data = data_set_handler.add(msg)
-            stream_to_io.send(data)
+            stream_to_io.send(json.dumps(data))
         gevent.sleep(0.1)
 
     socket.close()
