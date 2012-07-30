@@ -30,8 +30,8 @@ $(function() {
 
             // setup charts/graphs
 	    var chart_id = "chart-" + d.collection_id;
-            var chart_div = "<div id='" + chart_id + "'></div>";
-            $("#graphs").append(chart_div);
+            var chart_div = "<div id='" + chart_id + "' class='chart-group'><h3>" + d.label + "</h3></div>";
+            $("#chart-container").append(chart_div);
 
       	    var width = 700;
       	    var height = 300 / d.data.length;
