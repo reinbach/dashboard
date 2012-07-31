@@ -1,7 +1,11 @@
+import datetime
 import json
+import pymongo
 import uuid
 
 from mongokit import Document
+
+import config
 
 from database import connection, DBLayer
 
@@ -104,7 +108,7 @@ class DataSetMeta(Document):
             self.field_types
         ))
 
-    def get_data(self, limit=100):
+    def get_data(self, limit=config.RESULT_SET_LIMIT):
         """Get data and split into separate streams based on the number of fields
 
         Example:
@@ -115,7 +119,10 @@ class DataSetMeta(Document):
         data[2] = [34, 53]
         """
         db = self.dblayer.get_db()
-        result = db[self.get_collection_id()].find().limit(limit)
+        result = db[self.get_collection_id()].find(
+            sort=[("_id", pymongo.DESCENDING)],
+            limit=limit
+        )
         data = []
         for x in result:
             current_data = x.get("data")
@@ -137,7 +144,15 @@ class DataSetMeta(Document):
         self.get()
 
     def save_data(self, data):
+        """Dave data, make sure we have a timestamp
+
+        If no timestamp, then add
+        """
         db = self.dblayer.get_db()
+        if not data.get("timestamp", False):
+            data.update(
+                timestamp=datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%s")
+            )
         db[self.get_collection_id()].insert(data)
         return DataSet(data).to_json_friendly()
 

@@ -1,3 +1,4 @@
+import datetime
 import gevent
 import json
 import random
@@ -47,12 +48,20 @@ def data_producer():
     data_socket.connect(DASHBOARD_DATA_URI)
 
     while True:
-        data_msg = json.dumps({'source': 'data', 'data': random_data()})
+        data_msg = json.dumps({
+            'source': 'data',
+            'data': random_data(),
+            'timestamp': get_timestamp()
+        })
         print "sending: ", data_msg
         data_socket.send(data_msg)
         gevent.sleep(random_time_delay())
 
     data_socket.close()
+
+def get_timestamp():
+    """Return a timestamp yyyy/mm/dd h:m:s"""
+    return datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
 def message_producer():
     """Randomly produce messages"""
@@ -61,7 +70,11 @@ def message_producer():
     message_socket.connect(DASHBOARD_DATA_URI)
 
     while True:
-        msg = json.dumps({'source': 'message', 'data': random_message()})
+        msg = json.dumps({
+            'source': 'message',
+            'data': random_message(),
+            'timestamp': get_timestamp()
+        })
         print "sending: ", msg
         message_socket.send(msg)
         gevent.sleep(random_time_delay(False))
