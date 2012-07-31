@@ -110,8 +110,6 @@ class TestDataSetHandler(BaseTest):
             self.handler.get_field_types(data2)
         )
         meta_list = self.handler.get_data_set_meta()
-        #test
-        print "meta list: ", meta_list
         assert meta1 in meta_list.values()
         assert meta1.get_meta_data_key() in meta_list.keys()
         assert meta_list[meta1.get_meta_data_key()] == meta1
