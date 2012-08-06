@@ -32,11 +32,6 @@ class DashboardIOApp(BaseNamespace, BroadcastMixin):
 
             if action:
                 # record the data and send to client
-                # if new meta data set created, need
-                # to send that on to client as well
-                #
-                #TODO need to indicate the meta type for
-                # the data being streamed
                 data = sock.recv()
                 self.emit("new_data", data)
             gevent.sleep(0.1)

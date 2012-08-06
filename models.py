@@ -125,12 +125,16 @@ class DataSetMeta(Document):
         )
         data = []
         for x in result:
-            current_data = x.get("data")
-            if not data:
-                data = [[] for field in range(len(current_data))]
-            for i in range(len(current_data)):
-                data[i].append(current_data[i])
+            data = self.format_data(x, data)
         return data
+
+    def format_data(self, data, data_list=[]):
+        current_data = data.get("data")
+        if not data_list:
+            data_list = [[] for field in range(len(current_data))]
+        for i in range(len(current_data)):
+            data_list[i].append(current_data[i])
+        return data_list
 
     def save(self):
         """Save data to database
@@ -202,10 +206,12 @@ class DataSetHandler(object):
         source = self.get_source(complete_data)
         field_types = self.get_field_types(complete_data)
         meta_data = self.get_or_create_meta(source, field_types)
-
         new_data = meta_data.save_data(self.get_raw_data(complete_data))
 
-        return new_data
+        response = meta_data.to_json_friendly()
+        response["data"] = meta_data.format_data(new_data)
+
+        return response
 
     def get_or_create_meta(self, source, field_types):
         """Check for matching meta data record otherwise create one"""

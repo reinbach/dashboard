@@ -120,9 +120,11 @@ class TestDataSetHandler(BaseTest):
     def test_adding_data(self):
         """Test saving data"""
         data = {"source": "data", "data": [0.78, 0.07, 0.3, 0.92]}
-        data_saved = self.handler.add(json.dumps(data))
-        data_saved.pop("_id")
-        assert self.handler.get_raw_data(data) == data_saved
+        meta_data = self.handler.add(json.dumps(data))
+        data.pop("source")
+        data_saved = self.handler.get_raw_data(data)
+        assert data_saved == data
+        assert len(data_saved.get('data')) == len(meta_data.get('data'))
 
     def test_get_data(self):
         """Test getting data"""
