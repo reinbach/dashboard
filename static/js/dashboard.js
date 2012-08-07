@@ -31,6 +31,11 @@ $(function() {
         updateChart(d.collection_id, d.data);
     });
 
+
+    var margin = [40, 40, 40, 40]
+    var width = 700 - margin[1] - margin[3];
+    var height = 300 - margin[0] - margin[2];
+
     function setUpChart(meta) {
         // if chart setup does not exist for the meta
         // go ahead and create the setup
@@ -43,16 +48,16 @@ $(function() {
                     meta_id + "'>" + meta.label + "</span></li>"
             );
 
+            var chart_height = height;
+
             // setup charts/graphs
 	    var chart_group_id = getChartGroupId(meta.collection_id);
             var chart_div = "<div id='" + chart_group_id + "' class='chart-group'><h3>" + meta.label + "</h3></div>";
             $("#chart-container").append(chart_div);
 
-      	    var width = 700;
-      	    var height = 300 / meta.data.length;
             for (i = 0; i < meta.data.length; i++) {
                 var data = meta.data[i];
-      	        createChart(data, chart_group_id, width, height);
+      	        createChart(data, chart_group_id, width, chart_height);
             }
 
             // toggle the display of graph for particular feed
@@ -66,18 +71,31 @@ $(function() {
         return "chart-" + collection_id;
     }
 
-    function createChart(data, chart_group_id, width, height) {
+    function createChart(data, chart_group_id, width, chart_height) {
         // create the relevant charts
       	var max = d3.max(data)
 
       	// scales
       	var x = d3.scale.linear().domain([0, data.length - 1]).range([0, width]);
-      	var y = d3.scale.linear().domain([0, max]).range([height, 0]);
+      	var y = d3.scale.linear().domain([0, max]).range([chart_height, 0]);
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .ticks(4)
+            .orient("left");
 
-      	var chart = d3.select("#" + chart_group_id).append("svg:svg")
+      	var chart = d3.select("#" + chart_group_id)
+            .append("svg:svg")
       	    .attr("class", "chart")
-      	    .attr("width", width)
-      	    .attr("height", height);
+      	    .attr("width", width + margin[1] + margin[3])
+      	    .attr("height", chart_height + margin[0] + margin[2])
+            .append("svg:g")
+            .attr("transform", "translate(" + margin[3] + ", " + margin[0] + ")")
+
+        chart.append("svg:g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(0, 0)")
+            .call(yAxis)
+        ;
 
       	chart.selectAll("path.line")
       	    .data([data])
@@ -92,25 +110,27 @@ $(function() {
         // update the chart by adding new data
         // and removing old data
 
-        var width = 700
-        var height = 300 / data.length;
+        var chart_height = height;
 
         //TODO handle the scenario when this is the new chart
         var chart_group_id = getChartGroupId(collection_id);
-        var charts = $("#" + chart_group_id + " svg");
-        var paths = d3.selectAll("#" + chart_group_id + " path");
+        var paths = $("#" + chart_group_id + " path[class!='domain']");
+
         for (i = 0; i < data.length; i++) {
-            var chart = d3.select(charts[i]).select("path");
+            var chart = d3.select(paths[i]);
             var chart_data = chart.data()[0]
+
             // need to push the data onto the relevant data array
             chart_data.push(data[i][0])
 
             // scales
       	    var max = d3.max(chart_data);
       	    var x = d3.scale.linear().domain([0, chart_data.length - 1]).range([0, width]);
-            var y = d3.scale.linear().domain([0, max]).range([height, 0]);
+            var y = d3.scale.linear().domain([0, max]).range([chart_height, 0]);
 
             // redraw line and slide to the left
+            // pop the old data point off the front
+            chart_data.shift()
             chart
                 .attr("d", d3.svg.line()
       	     	      .x(function(d, i) { return x(i); })
@@ -120,8 +140,6 @@ $(function() {
                 .transition()
                 .ease("linear")
                 .attr("transform", "translate(" + x(-1) + ")");
-            // pop the old data point off the front
-            chart_data.shift()
         }
     }
 });
