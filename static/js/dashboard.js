@@ -33,8 +33,8 @@ $(function() {
 
 
     var margin = [40, 40, 40, 40]
-    var width = 700 - margin[1] - margin[3];
-    var height = 300 - margin[0] - margin[2];
+    var width = 650 - margin[1] - margin[3];
+    var height = 200 - margin[0] - margin[2];
 
     function setUpChart(meta) {
         // if chart setup does not exist for the meta
@@ -57,7 +57,7 @@ $(function() {
 
             for (i = 0; i < meta.data.length; i++) {
                 var data = meta.data[i];
-      	        createChart(data, chart_group_id, width, chart_height);
+      	        createChart(data, chart_group_id, chart_height);
             }
 
             // toggle the display of graph for particular feed
@@ -71,7 +71,7 @@ $(function() {
         return "chart-" + collection_id;
     }
 
-    function createChart(data, chart_group_id, width, chart_height) {
+    function createChart(data, chart_group_id, chart_height) {
         // create the relevant charts
       	var max = d3.max(data)
 
@@ -123,14 +123,15 @@ $(function() {
             // need to push the data onto the relevant data array
             chart_data.push(data[i][0])
 
+            // pop the old data point off the front
+            chart_data.shift()
+
             // scales
       	    var max = d3.max(chart_data);
       	    var x = d3.scale.linear().domain([0, chart_data.length - 1]).range([0, width]);
             var y = d3.scale.linear().domain([0, max]).range([chart_height, 0]);
 
             // redraw line and slide to the left
-            // pop the old data point off the front
-            chart_data.shift()
             chart
                 .attr("d", d3.svg.line()
       	     	      .x(function(d, i) { return x(i); })
@@ -138,8 +139,7 @@ $(function() {
                      )
                 .attr("transform", null)
                 .transition()
-                .ease("linear")
-                .attr("transform", "translate(" + x(-1) + ")");
+                .ease("linear");
         }
     }
 });
