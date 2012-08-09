@@ -22,7 +22,7 @@ def random_time_delay(microseconds=True):
     """Generate random time delay"""
     delay = random.randint(1, 10)
     if microseconds:
-        delay = delay / 100.0
+        delay = delay / 10.0
     return delay
 
 def random_message():
@@ -41,6 +41,10 @@ def random_data(data_size=4):
         data.append(random_float())
     return data
 
+def get_timestamp():
+    """Return a timestamp yyyy/mm/dd h:m:s"""
+    return datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+
 def data_producer():
     """Randomly produce data"""
     context = zmq.Context()
@@ -58,10 +62,6 @@ def data_producer():
         gevent.sleep(random_time_delay())
 
     data_socket.close()
-
-def get_timestamp():
-    """Return a timestamp yyyy/mm/dd h:m:s"""
-    return datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
 def message_producer():
     """Randomly produce messages"""
