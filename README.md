@@ -20,3 +20,13 @@ Data Assumptions
    1.1 If multiple data sets found, then assign to "dump"
 1. First set is taken as header, initially
 1. Columns are in the same order
+
+Setup/Installation
+------------------
+
+Make sure you have an instance of MongoDB running locally
+
+    python setup.py install
+    python app.py
+    python producer.py
+
