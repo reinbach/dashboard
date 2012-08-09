@@ -45,16 +45,18 @@ def get_timestamp():
     """Return a timestamp yyyy/mm/dd h:m:s"""
     return datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
-def data_producer():
+def data_producer(data_size=4):
     """Randomly produce data"""
     context = zmq.Context()
     data_socket = context.socket(zmq.PUSH)
     data_socket.connect(DASHBOARD_DATA_URI)
 
+    source = "data_{0}".format(data_size)
+
     while True:
         data_msg = json.dumps({
-            'source': 'data',
-            'data': random_data(),
+            'source': source,
+            'data': random_data(data_size),
             'timestamp': get_timestamp()
         })
         print "sending: ", data_msg
@@ -84,5 +86,7 @@ def message_producer():
 if __name__ == "__main__":
     gevent.joinall([
         gevent.spawn(data_producer),
-        gevent.spawn(message_producer),
+        gevent.spawn(data_producer, 1),
+        gevent.spawn(data_producer, 2),
+        #gevent.spawn(message_producer),
     ])
