@@ -78,10 +78,6 @@ $(function() {
       	// scales
       	var x = d3.scale.linear().domain([0, data.length - 1]).range([0, width]);
       	var y = d3.scale.linear().domain([0, max]).range([chart_height, 0]);
-        var yAxis = d3.svg.axis()
-            .scale(y)
-            .ticks(4)
-            .orient("left");
 
       	var chart = d3.select("#" + chart_group_id)
             .append("svg:svg")
@@ -89,13 +85,9 @@ $(function() {
       	    .attr("width", width + margin[1] + margin[3])
       	    .attr("height", chart_height + margin[0] + margin[2])
             .append("svg:g")
-            .attr("transform", "translate(" + margin[3] + ", " + margin[0] + ")")
+            .attr("transform", "translate(" + margin[3] + ", " + margin[0] + ")");
 
-        chart.append("svg:g")
-            .attr("class", "y axis")
-            .attr("transform", "translate(0, 0)")
-            .call(yAxis)
-        ;
+        setYAxis(chart, y);
 
       	chart.selectAll("path.line")
       	    .data([data])
@@ -104,6 +96,22 @@ $(function() {
       	     	  .x(function(d, i) { return x(i); })
       	     	  .y(y)
       	     	 );
+    }
+
+    function setYAxis(chart, y) {
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .ticks(4)
+            .orient("left");
+
+        if (!$("svg:g", chart).length) {
+            chart.append("svg:g");
+            chart_axis = $("svg:g", chart);
+        }
+
+        chart.append("svg:g").attr("class", "y axis")
+            .attr("transform", "translate(0, 0)")
+            .call(yAxis);
     }
 
     function updateChart(collection_id, data) {
@@ -117,14 +125,18 @@ $(function() {
         var paths = $("#" + chart_group_id + " path[class!='domain']");
 
         for (i = 0; i < data.length; i++) {
-            var chart = d3.select(paths[i]);
-            var chart_data = chart.data()[0]
+            var chart_path = d3.select(paths[i]);
+            var chart_data = chart_path.data()[0];
 
             // need to push the data onto the relevant data array
-            chart_data.push(data[i][0])
+            chart_data.push(data[i][0]);
 
             // pop the old data point off the front
-            chart_data.shift()
+            // only if the count has reached the max
+            // max value hardcoded at the moment
+            if (chart_data.length > 100) {
+                chart_data.shift();
+            }
 
             // scales
       	    var max = d3.max(chart_data);
@@ -132,7 +144,7 @@ $(function() {
             var y = d3.scale.linear().domain([0, max]).range([chart_height, 0]);
 
             // redraw line and slide to the left
-            chart
+            chart_path
                 .attr("d", d3.svg.line()
       	     	      .x(function(d, i) { return x(i); })
       	     	      .y(y)
@@ -140,6 +152,8 @@ $(function() {
                 .attr("transform", null)
                 .transition()
                 .ease("linear");
+
+            setYAxis(d3.select("#" + chart_group_id), y);
         }
     }
 });
